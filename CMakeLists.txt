@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.15)
+project(hft_lob)
+set(CMAKE_CXX_STANDARD 17)
+include_directories(include)
+add_executable(hft_lob src/main.cpp include/core/order_book.hpp include/engine/matching_engine.hpp include/strategy/market_maker.hpp)
+target_link_libraries(hft_lob pthread)
