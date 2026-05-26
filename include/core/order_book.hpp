@@ -42,6 +42,7 @@ class OrderBook{
                 if(asks_[price].empty()) asks_.erase(price);
             }
             order_side_index_.erase(id);
+
         }
 
         std::vector<Trade> match(){
@@ -52,7 +53,7 @@ class OrderBook{
                 uint64_t trade_qty = std::min(bid_front.quantity, ask_front.quantity);
                 uint64_t buy_order_id = bid_front.id;
                 uint64_t sell_order_id = ask_front.id;
-                int64_t price = ask_front.price;
+                int64_t price = ask_front.price;     
                 uint64_t quantity = trade_qty;
                 int64_t timestamp_ns = std::chrono::steady_clock::now().time_since_epoch().count();
                 Trade t = {buy_order_id, sell_order_id, price, quantity, timestamp_ns, Side::ASK};

@@ -5,7 +5,7 @@
 template<typename T>
 class SPSCQueue{
     private:
-        static constexpr size_t CAPACITY = 1024;
+        static constexpr size_t CAPACITY = 65536;
         T buffer_[CAPACITY];
         alignas(64) std::atomic<size_t> head_{0};
         alignas(64) std::atomic<size_t> tail_{0};
@@ -19,7 +19,7 @@ class SPSCQueue{
                 return false;
             }
             buffer_[h] = std::move(item);
-            head_.store(std::memory_order_release);
+            head_.store(next, std::memory_order_release);
             return true;
         }
 
