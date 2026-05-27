@@ -36,7 +36,6 @@ private:
     size_t vol_window_;
     std::shared_ptr<std::atomic<uint64_t>> messages_processed_;
     uint64_t total_messages_;
-    uint64_t local_step_ = 0;
 
 public:
     MarketMaker(SPSCQueue<Trade> &tq, OrderQueue &oq, OrderBook &ob, Logger &log,
@@ -44,7 +43,7 @@ public:
                 std::shared_ptr<std::atomic<uint64_t>> messages_processed,
                 uint64_t total_messages,
                 double max_inventory = 50.0, uint64_t quote_size = 10,
-                size_t vol_window = 5000)
+                size_t vol_window = 500)
         : trade_queue_(tq), order_queue_(oq), order_book_(ob), logger_(log),
           sigma_(sigma), kappa_(kappa), gamma_(gamma), mid_price_(95.0), inventory_(0.0),
           bid_id_(0), ask_id_(0), max_inventory_(max_inventory), quote_size_(quote_size),
@@ -86,7 +85,6 @@ public:
                         logger_.log(event);
                     }
                     trade_count++;
-                    local_step_++;
                 }
                 Order c1, c2;
                 c1.type = Type::CANCEL;
@@ -96,8 +94,13 @@ public:
                 order_queue_.push(c1);
                 order_queue_.push(c2);
                 auto [best_bid, best_ask] = order_book_.getBBO();
-                if (best_bid > 0 && best_ask > 0)
+                if (best_bid > 0 && best_ask > 0) {
                     mid_price_ = (best_bid + best_ask) / 2.0;
+                    double mid_dollars = mid_price_ / 100.0;
+                    price_history_.push_back(mid_dollars);
+                    if (price_history_.size() > vol_window_)
+                        price_history_.pop_front();
+                }
                 auto [bid, ask] = computeQuotes();
                 if (bid == 0 && ask == 0)
                 {
@@ -161,7 +164,8 @@ public:
             return {0, 0};
 
         double sigma = computeRollingSigma();
-        double T = std::max(0.01, 1.0 - (double)local_step_ / total_messages_);
+        double T = std::max(0.01, 1.0 - static_cast<double>(messages_processed_->load(std::memory_order_relaxed)) /
+                                         static_cast<double>(total_messages_));
         double mid_dollars = mid_price_ / 100.0;
         double r = mid_dollars - inventory_ * gamma_ * sigma * sigma * T;
         double delta = gamma_ * sigma * sigma * T + (2.0 / gamma_) * std::log(1.0 + gamma_ / kappa_);
