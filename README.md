@@ -1,7 +1,7 @@
 # Order Matching Engine 
 A C++ engine which takes orders for a given stock, matches the corresponding bids and asks and facilitates trade for that stock.
 
-**Note:** Work in Progress, so don't run it right now pls :(
+**Note:** Backtested against sample data sourced from LOBSTER for AAPL
 
 ## Key Features:
 - Multithreaded C++ engine.
