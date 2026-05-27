@@ -59,7 +59,7 @@ This parameter determines how wide to quote around the reservation price. Two co
 ~70,000 fills logged
 
 **Market conditions**: ~1% intraday price decline ($58.60 → $57.80), 
-strongly trending — worst-case scenario for A-S which assumes zero drift
+strongly trending, worst-case scenario for A-S which assumes zero drift
 
 ![Backtested results](order_book_analysis.png)
 
