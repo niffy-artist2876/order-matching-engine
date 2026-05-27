@@ -15,7 +15,7 @@ int main(){
       double sigma = 0.01, gamma = 0.05, kappa = 100.0;
       double max_inventory = 50.0;
       uint64_t quote_size = 10;
-      size_t vol_window = 100;
+      size_t vol_window = 5000;
       LobsterParser parser("message_file.csv", oq);
       MatchingEngine me(oq, tq, logger);
       MarketMaker mk(tq, oq, me.getBook(), logger, sigma, gamma, kappa,

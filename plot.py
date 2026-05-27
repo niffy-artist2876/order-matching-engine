@@ -64,6 +64,33 @@ ax6.set_ylabel("Inventory")
 ax6.set_xlabel("Trade #")
 ax6.grid(True, alpha=0.3)
 
+df['bid_d'] = df['bid'] / 100.0
+df['ask_d'] = df['ask'] / 100.0
+
+df['inventory_change'] = df['inventory'].diff().fillna(0)
+
+df['cash_flow'] = 0.0
+mask_buy = df['inventory_change'] > 0
+mask_sell = df['inventory_change'] < 0
+df.loc[mask_buy, 'cash_flow'] = -df['bid_d'] * df.loc[mask_buy, 'inventory_change']
+df.loc[mask_sell, 'cash_flow'] = -df['ask_d'] * df.loc[mask_sell, 'inventory_change']
+
+df['pnl'] = df['cash_flow'].cumsum()
+
+df['pnl_smooth'] = df['pnl'].rolling(window=500, min_periods=1).mean()
+
+df['pnl_smooth_dollars'] = df['pnl_smooth'] / 100.0
+
+ax7 = fig.add_subplot(gs[3, :])  
+ax7.plot(x, df['pnl_smooth_dollars'], color='#006600', linewidth=1.5)
+ax7.fill_between(x, df['pnl_smooth_dollars'], 0, alpha=0.2, color='#006600')
+ax7.axhline(0, color='black', linewidth=0.8, linestyle='--')
+ax7.set_title('Market Maker PnL')
+ax7.set_ylabel('PnL ($)')
+ax7.set_xlabel('Trade #')
+ax7.grid(True, alpha=0.3)
+
 plt.savefig("order_book_analysis.png", dpi=150, bbox_inches="tight")
 print("Saved order_book_analysis.png")
+
 plt.show()
