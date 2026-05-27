@@ -73,8 +73,8 @@ strongly trending — worst-case scenario for A-S which assumes zero drift
 ### Interpretation
 
 The model performs as expected given market conditions:
-- Spread revenue is earned on round trips during calm periods, visible as PnLrises between trades 0-5k and 35k-40k.
-- Adverse selection dominates during the steepest parts of the decline. Informed sellers systematically hit bids, driving inventory long and PnL negative.
+- Spread revenue is earned on round trips during calm periods, visible as PnL rises between trades 0-5k and 35k-40k.
+- Adverse selection dominates during the steepest parts of the decline. Order flow was predominantly one-sided. Bids were consistently hit while asks were rarely lifted, consistent with a toxic flow environment on a bearish trending day, driving inventory long and PnL negative.
 - Hard inventory cap prevents catastrophic accumulation, allowing PnL to recover rather than decline further.
 - Net result is a loss of roughly $500 per unit on a strongly trending day, which is consistent with the theoretical expectations of the A-S model under non-zero drift.
 
