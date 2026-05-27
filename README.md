@@ -12,14 +12,14 @@ Backtested on real L2 order book data from LOBSTER (AAPL, 5-level order book, 30
 
 ## Architecture:
 - Matching Engine Thread: Processes incoming orders and matches their corresponding bids and asks by price-time priority. Orders are stored in a reader-writer locked order book (``std::map<price, std::deque<order>>``) supporting O(logn) insertion and O(1) lookup.
-- Market Maker Thread: Consumes orders via a lock-free SPSC queue and recomputes bid/ask quotes using the Avellaneda-Stoikov Model in real time. Maintains a rolling volatility estimate over a 500-event window to dynamically update spread and reservation price.
+- Market Maker Thread: Consumes trades via a lock-free SPSC queue and recomputes bid/ask quotes using the Avellaneda-Stoikov Model in real time. Maintains a rolling volatility estimate over a 5000-event window to dynamically update spread and reservation price.
 - SPSC Queue: single-producer single-consumer lock-free queue connecting the matching engine to the market maker, avoiding mutex overhead on the critical path.
 
 ## Market Making Model:
 
-Implements the Avellaneda-Stoikov Model. A market maker profits by continuously quoting a bid (buy price) and ask (sell price), earning the spread on round trips. The core challenge is matching inventory risk. If prices move against your position before you can offload it, losses exceed spread revenue.
+Implements the Avellaneda-Stoikov Model. A market maker profits by continuously quoting a bid (buy price) and ask (sell price), earning the spread on round trips. The core challenge is managing inventory risk. If prices move against your position before you can offload it, losses exceed spread revenue.
 
-To avoid this, A-S solves this by comparing two quantities:
+To avoid this, A-S solves this by computing two quantities:
 
 ### Reservation Price
 $$r = s - q \cdot \gamma \cdot \sigma^2 \cdot (T - t)$$
@@ -29,7 +29,7 @@ The price the market maker actually wants to trade at, given current inventory $
 ### Optimal Spread
 $$\delta = \gamma \sigma^2 (T-t) + \frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$$
 
-This parameter denotes how wide to quote the reservation price. Two components:
+This parameter determines how wide to quote around the reservation price. Two components:
 - **Volatility term** $\gamma \sigma^2 (T-t)$: widens spread during uncertain conditions to protect against adverse selection
 - **Liquidity term** $\frac{2}{\gamma} \ln\left(1 + \frac{\gamma}{\kappa}\right)$: driven by order arrival rate $\kappa$, higher $\kappa$ means more competition, tighter spread
 
