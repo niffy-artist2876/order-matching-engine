@@ -88,7 +88,7 @@ The model performs as expected given market conditions:
 5. Run ``cmake ..``.
 6. Run ``make``.
 7. Run ``./hft_lob``.
-8. Run ``python plot.py`` in order to see the results.
+8. Run ``python plot.py`` from the root in order to see the results.
 
 ## References
 - Avellaneda, M. & Stoikov, S. (2008). *High-frequency trading in a limit order book*. Quantitative Finance, 8(3), 217-224.
